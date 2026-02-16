@@ -2,52 +2,200 @@
 <img width="1536" height="1024" alt="download" src="https://github.com/user-attachments/assets/e0bc02cd-48c8-4f28-b2e7-a8a0931f52f7" />
 
 
-# **BUSINESS PROBLEM OVERVIEW**
 
-In today’s fast paced world, giving good customer service is very important to keep customers happy and grow the business. Companies check how well their support teams are doing by using a score called CSAT (Customer Satisfaction Score). But this score is given after the support call is finished. So if the customer is unhappy and gives a low score, it’s already too late to fix the problem or make them happy again.
+---
 
-Flipkart aims to enhance its customer service by understanding the key drivers behind customer satisfaction. The company receives thousands of customer interactions daily through various support channels. These interactions are recorded with multiple features like ticket category, issue type, resolution time, and support channel used. However, predicting whether a customer will be satisfied or not after an interaction remains a challenge.
+# Predicting Flipkart Customer Satisfaction (CSAT) Score Using Machine Learning
 
-The goal of this project is to build a machine learning classification model that can predict customer satisfaction (CSAT) based on ticket features and interaction details. This will enable Flipkart to:
+## Business Problem Overview
 
-*  Proactively identify potential dissatisfaction
+In today’s fast-paced e-commerce environment, customer satisfaction is critical for business growth. Companies measure service performance using CSAT (Customer Satisfaction Score).
 
-* Allocate resources effectively
+The challenge is that CSAT is collected after the customer interaction is completed. If the score is low, it is already too late to fix the experience.
 
-* Personalize customer support
+This project aims to predict customer satisfaction before the feedback is given, enabling proactive support improvements.
 
-* Improve service quality and agent performance
+---
 
-# **Project Summary -**
+## About the Company
 
-* The main aim of this project is to build a machine learning classification model to predict Customer Satisfaction (CSAT) score for Flipkart's customer service.
-The goal is to find important factors behind customer satisfaction, detect low satisfaction cases early, and help improve overall customer experience.
-* This project is divided into foir main  parts:
+![Image](https://images.openai.com/static-rsc-3/RAtuJbpj3Csb4i9ISMHilrMsRNlt0Pj88D3PeflCSN6J-QJ6lBqsvshSPUQm9yBvcpyTSEVZ8Kf_psY9P9o2tmZKMMIyu9HJuk7c-KBQRZ8?purpose=fullsize\&v=1)
 
-   1. Data Understanding & Variable Exploration  
-      * Loaded the dataset, understood column types, checked for duplicates and missing values.  
 
-  2. Data Wrangling & EDA & Hypothesis Testing
-      * Cleaned the data, handled outliers, and performed univariate, bivariate, and multivariate analysis to uncover key insights and  Conducted hypothesis testing.  
+Flipkart is one of India’s largest e-commerce platforms, handling millions of customer interactions every month through call, chat, and email channels.
 
-  3. Feature Engineering & ML Modeling  
-      * Engineered relevant features, applied preprocessing, trained multiple ML models, and selected the best one using evaluation metrics.  
+Understanding the drivers of customer satisfaction helps improve service quality, reduce churn, and increase long-term profitability.
 
-  4. Real-World Testing & Conclusion  
-      * Tested the saved model with unseen data, evaluated generalization, and summarized insights with suggestions for future improvements.
-1. **Data Understanding & Variable Exploration** :
-  *  In this project  dataset  have  85907 rows and 20 columns and this dataset  focusing on Flipkart’s customer support data.  
-  * All the columns are categorized into three data types: object, float64, and int64.
-  * The column  present in dataset are `unique id`,`channel_name`,`customer query category`	,` customer query Sub-category`	,`Customer Remarks`,	`Order_id`,`order_date_time`,`Issue_reported at	issue_responded`,	`Survey_response_Date`,`Customer_City`,`Product_category`,`Item_price`,`connected_handling_time`,`Agent_name`,`Supervisor`,`Manager`	,`Tenure Bucket`,`Agent Shift`,`CSAT `
- * The dataset contains **no duplicate rows**, but several columns have missing values, including: `connected_handling_time` (99.72%), `Customer_City` (80.12%), `Product_category` (79.98%), `Item_price` (79.97%), `order_date_time` (79.96%), `Customer Remarks` (66.54%), and `Order_id` (21.22%). .
-2. **Data Wrangling & EDA & Hypothesis Testing**:
- * In the data wrangling phase, I handled missing values by dropping the connected_handling_time column due to 99.72% nulls and transformed date columns into datetime format. I also engineered a new feature response_time_minutes from time differences and cleaned text data for consistency.
- * During the EDA step, i performed detailed univariate bivariate  and multivariate  analysis to uncover patterns in CSAT scores across channels, categories, products, agents, supervisors, managers, and shifts. i found that faster response times and experienced agents often led to higher CSAT. Some categories like GiftCards and channels like Email had lower satisfaction and need improvement. These insights can guide Flipkart to improve service quality, optimize agent performance, and boost overall customer satisfaction.
- * In the hypothesis testing step, i used statistical tests like one-sample t-tests and ANOVA to check if the average CSAT score and item price significantly differ from given values, and if CSAT varies across communication channels.
-3. **Feature Engineering & ML Modeling** :
- * In the Feature Engineering & Data Preprocessing step, I handled missing values using constant, mode, and mean imputation based on column type and group logic. Outliers were capped using IQR and percentiles, and new features like is_long_response and avg_csat_by_agent were created. I used one-hot encoding for small categorical columns and label encoding for high-cardinality ones. Important features were selected using techniques like correlation check, Random Forest importance, and SelectKBest, followed by data scaling and SMOTE to balance the classes.
- * In the ML Model Implementation step, I tested multiple models like Random Forest, CatBoost, and XGBoost. After comparing their performance using accuracy, recall, precision, and F1-score, I finalized XGBoost as it delivered the best overall results. I also used feature explainability tools like SHAP to interpret how each feature impacted predictions
+---
 
-4. **Real-World Testing & Conclusion**:
- * In the real-world testing phase, the saved XGBoost model performed well on unseen data, confirming its reliability and generalization. However, the model struggled to accurately predict CSAT classes 2 and 3, highlighting the need for better quality and balanced data. With improved data in the future, these challenges can be addressed to boost overall model accuracy and business impact.
+## Project Objective
 
+The goal of this project is to build a Machine Learning classification model that predicts CSAT score (1 to 5) using customer interaction details such as:
+
+* Communication Channel
+* Query Category and Sub-Category
+* Product Category
+* Agent Information
+* Response Time
+* Customer Remarks
+
+---
+
+## Dataset Information
+
+* Total Records: 85,907
+* Total Features: 20
+* Time Period: 2022 to 2023
+* Target Variable: CSAT (1 to 5)
+
+### Important Columns
+
+`channel_name`, `customer_query_category`, `customer_query_sub_category`, `Customer_Remarks`, `Product_category`, `Item_price`, `Agent_name`, `Supervisor`, `Manager`, `Agent Shift`, `Tenure Bucket`, `CSAT`
+
+### Missing Values
+
+Some columns contained high missing values:
+
+* `connected_handling_time` (99.72 percent) and was dropped
+* `Customer_City` approximately 80 percent
+* `Product_category` approximately 80 percent
+* `Item_price` approximately 80 percent
+* `Customer_Remarks` approximately 66 percent
+
+No duplicate rows were found in the dataset.
+
+---
+
+# Project Workflow
+
+## 1. Data Understanding and Exploration
+
+* Checked data structure and column types
+* Identified missing values
+* Verified duplicates
+* Converted date columns to datetime format
+
+---
+
+## 2. Data Wrangling, EDA and Hypothesis Testing
+
+### Data Cleaning
+
+* Dropped columns with extremely high null values
+* Used mean, mode, and constant imputation
+* Created a new feature `response_time_minutes`
+
+### Exploratory Data Analysis
+
+Key insights:
+
+* Faster response time was associated with higher CSAT
+* App and Website related categories showed higher satisfaction
+* Gift Cards and Furniture categories showed lower satisfaction
+* Experienced agents and balanced workload improved CSAT
+
+### Hypothesis Testing
+
+* One Sample T-Test
+* ANOVA Test
+
+These tests validated whether CSAT significantly differed across communication channels and price segments.
+
+---
+
+## Feature Engineering and Preprocessing
+
+* Created features such as:
+
+  * `is_long_response`
+  * `avg_csat_by_agent`
+  * `agent_ticket_count`
+  * `product_popularity`
+
+* Handled outliers using IQR and percentile capping
+
+* Applied One-Hot Encoding, Label Encoding, and Ordinal Encoding
+
+* Selected important features using Random Forest Importance and SelectKBest
+
+* Applied MinMax Scaling
+
+* Used SMOTE to handle class imbalance
+
+---
+
+## Model Implementation
+
+Tested multiple algorithms:
+
+* Random Forest
+* CatBoost
+* XGBoost
+
+### Final Model: XGBoost
+
+XGBoost was selected because it handled class imbalance effectively and provided the best balance between precision and recall.
+
+### Final Performance
+
+* Training Accuracy: 76 percent
+* Testing Accuracy: 70 percent
+* Weighted F1 Score: 0.63
+
+The model showed good generalization and did not overfit.
+
+---
+
+## Feature Importance Insights
+
+The most important drivers of CSAT prediction were:
+
+* Response Time
+* Customer Sentiment
+* Product Popularity
+* Agent Workload
+* Agent Past Performance
+
+Customers with longer response times and negative sentiment were more likely to give lower satisfaction scores.
+
+---
+
+## Real-World Testing
+
+The saved XGBoost model was tested on unseen data and performed consistently.
+
+However, prediction performance for CSAT classes 2 and 3 was lower due to class imbalance. Future improvements can focus on collecting more balanced data to enhance performance.
+
+---
+
+## Business Impact
+
+This model enables Flipkart to:
+
+* Identify potentially dissatisfied customers before feedback submission
+* Speed up responses for high-risk cases
+* Assign better agents to critical tickets
+* Reduce churn
+* Improve customer retention
+* Increase overall profitability
+
+---
+
+## Tech Stack
+
+* Python
+* Pandas and NumPy
+* Matplotlib and Seaborn
+* Scikit-Learn
+* XGBoost
+* CatBoost
+* SHAP
+* SMOTE
+
+---
+
+## Conclusion
+
+This project demonstrates how Machine Learning can transform customer support from reactive to proactive.
+
+By predicting dissatisfaction early, businesses can take preventive actions and significantly improve overall customer experience.
