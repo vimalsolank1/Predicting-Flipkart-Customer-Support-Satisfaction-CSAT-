@@ -1,43 +1,45 @@
-#  Predicting Customer Satisfaction Score Using  Classification
+
+
+# Predicting Flipkart Customer Satisfaction (CSAT) Using Machine Learning
+
 <img width="1536" height="1024" alt="download" src="https://github.com/user-attachments/assets/e0bc02cd-48c8-4f28-b2e7-a8a0931f52f7" />
-
-
-
----
-
-# Predicting Flipkart Customer Satisfaction (CSAT) Score Using Machine Learning
 
 ## Business Problem Overview
 
-In today’s fast-paced e-commerce environment, customer satisfaction is critical for business growth. Companies measure service performance using CSAT (Customer Satisfaction Score).
+In today’s fast-paced e-commerce environment, customer satisfaction plays a critical role in business growth and retention. Companies measure service performance using CSAT (Customer Satisfaction Score).
 
-The challenge is that CSAT is collected after the customer interaction is completed. If the score is low, it is already too late to fix the experience.
+However, CSAT is collected after the customer interaction is completed. If a customer gives a low score, it is already too late to fix the experience.
 
-This project aims to predict customer satisfaction before the feedback is given, enabling proactive support improvements.
+This project focuses on predicting whether a customer is likely to be dissatisfied before the final feedback is submitted, allowing proactive intervention and service improvement.
 
 ---
 
 ## About the Company
-
 ![Image](https://images.openai.com/static-rsc-3/RAtuJbpj3Csb4i9ISMHilrMsRNlt0Pj88D3PeflCSN6J-QJ6lBqsvshSPUQm9yBvcpyTSEVZ8Kf_psY9P9o2tmZKMMIyu9HJuk7c-KBQRZ8?purpose=fullsize\&v=1)
 
+Flipkart is one of India’s largest e-commerce platforms, handling millions of customer interactions through call, chat, and email support channels.
 
-Flipkart is one of India’s largest e-commerce platforms, handling millions of customer interactions every month through call, chat, and email channels.
-
-Understanding the drivers of customer satisfaction helps improve service quality, reduce churn, and increase long-term profitability.
+Understanding what drives customer dissatisfaction helps improve service quality, reduce churn, and increase long-term profitability.
 
 ---
 
 ## Project Objective
 
-The goal of this project is to build a Machine Learning classification model that predicts CSAT score (1 to 5) using customer interaction details such as:
+The objective of this project is to build a Machine Learning classification model that predicts whether a customer is:
 
-* Communication Channel
-* Query Category and Sub-Category
-* Product Category
-* Agent Information
-* Response Time
-* Customer Remarks
+* At-Risk (Dissatisfied)
+* Satisfied
+
+The prediction is based on customer interaction details such as:
+
+* Communication channel
+* Query category
+* Agent information
+* Response time
+* Customer remarks
+* Historical agent performance
+
+The main goal is to detect dissatisfaction early and enable proactive support management.
 
 ---
 
@@ -46,7 +48,7 @@ The goal of this project is to build a Machine Learning classification model tha
 * Total Records: 85,907
 * Total Features: 20
 * Time Period: 2022 to 2023
-* Target Variable: CSAT (1 to 5)
+* Original Target Variable: CSAT (1 to 5)
 
 ### Important Columns
 
@@ -54,15 +56,28 @@ The goal of this project is to build a Machine Learning classification model tha
 
 ### Missing Values
 
-Some columns contained high missing values:
+Some columns had high missing values:
 
-* `connected_handling_time` (99.72 percent) and was dropped
-* `Customer_City` approximately 80 percent
-* `Product_category` approximately 80 percent
-* `Item_price` approximately 80 percent
-* `Customer_Remarks` approximately 66 percent
+* connected_handling_time (99.72 percent) – dropped
+* Customer_City approximately 80 percent
+* Product_category approximately 80 percent
+* Item_price approximately 80 percent
+* Customer_Remarks approximately 66 percent
 
-No duplicate rows were found in the dataset.
+No duplicate rows were found.
+
+---
+
+# Target Transformation
+
+The original CSAT score ranged from 1 to 5 and was highly imbalanced.
+
+To align with the business objective of early dissatisfaction detection, the problem was converted into Binary Classification:
+
+* 1 = At-Risk (CSAT scores 1, 2, 3)
+* 0 = Satisfied (CSAT scores 4, 5)
+
+This simplified the modeling task and directly focused on identifying dissatisfied customers.
 
 ---
 
@@ -70,7 +85,8 @@ No duplicate rows were found in the dataset.
 
 ## 1. Data Understanding and Exploration
 
-* Checked data structure and column types
+* Inspected dataset structure
+* Checked data types
 * Identified missing values
 * Verified duplicates
 * Converted date columns to datetime format
@@ -82,120 +98,146 @@ No duplicate rows were found in the dataset.
 ### Data Cleaning
 
 * Dropped columns with extremely high null values
-* Used mean, mode, and constant imputation
-* Created a new feature `response_time_minutes`
+* Removed negative response times using domain knowledge
+* Created `response_time_mins` feature
+
 
 ### Exploratory Data Analysis
 
 Key insights:
 
-* Faster response time was associated with higher CSAT
-* App and Website related categories showed higher satisfaction
-* Gift Cards and Furniture categories showed lower satisfaction
-* Experienced agents and balanced workload improved CSAT
+* Faster response time leads to higher satisfaction
+* Negative sentiment strongly correlates with dissatisfaction
+* Certain issue categories have slightly higher dissatisfaction rates
+* Agent historical performance significantly impacts outcomes
 
 ### Hypothesis Testing
 
-* One Sample T-Test
-* ANOVA Test
+* Pearson Correlation Test confirmed response time significantly impacts CSAT
+* One-Way ANOVA confirmed CSAT differs across communication channels
 
-These tests validated whether CSAT significantly differed across communication channels and price segments.
+These tests validated the patterns observed in EDA.
 
 ---
 
-## Feature Engineering and Preprocessing
+# Feature Engineering and Preprocessing
+* Handle missing value using constant  imputation and Applied log transformation to reduce skewness 
+Created meaningful features such as:
 
-* Created features such as:
+* customer_sentiment_score using VADER sentiment analysis
+* remark_length
+* is_long_response
+* Time-based features (hour, weekday, minute)
+* agent_ticket_count
+* agent_risk_rate (historical dissatisfaction rate of agent)
+* supervisor_risk_rate
 
-  * `is_long_response`
-  * `avg_csat_by_agent`
-  * `agent_ticket_count`
-  * `product_popularity`
+Agent and supervisor risk features were created after train-test split to prevent data leakage.
 
-* Handled outliers using IQR and percentile capping
+### Encoding and Feature Selection
 
-* Applied One-Hot Encoding, Label Encoding, and Ordinal Encoding
-
-* Selected important features using Random Forest Importance and SelectKBest
-
+* One-Hot Encoding for low-cardinality variables
+* Label Encoding for high-cardinality features
+* Removed constant and highly correlated features
+* Feature importance using Random Forest
+* SelectKBest (ANOVA F-test)
 * Applied MinMax Scaling
 
-* Used SMOTE to handle class imbalance
+Class imbalance was handled using class weights and scale_pos_weight in tree-based models.
 
 ---
 
-## Model Implementation
+# Model Implementation
 
 Tested multiple algorithms:
 
 * Random Forest
-* CatBoost
 * XGBoost
+* LightGBM
 
-### Final Model: XGBoost
+Evaluation Metrics Used:
 
-XGBoost was selected because it handled class imbalance effectively and provided the best balance between precision and recall.
+* Precision
+* Recall
+* F1-Score
+* ROC-AUC
 
-### Final Performance
-
-* Training Accuracy: 76 percent
-* Testing Accuracy: 70 percent
-* Weighted F1 Score: 0.63
-
-The model showed good generalization and did not overfit.
+Since the business goal is to identify dissatisfied customers, Recall for the At-Risk class was prioritized.
 
 ---
 
-## Feature Importance Insights
+# Final Model: LightGBM
 
-The most important drivers of CSAT prediction were:
+LightGBM was selected as the final model because it achieved the highest recall for the At-Risk class while maintaining stable overall performance.
 
-* Response Time
-* Customer Sentiment
-* Product Popularity
-* Agent Workload
-* Agent Past Performance
+### Final Test Performance
 
-Customers with longer response times and negative sentiment were more likely to give lower satisfaction scores.
+* Accuracy: 73 percent
+* Recall (At-Risk): 68 percent
+* Weighted F1 Score: 0.76
+* ROC-AUC Score: 0.78
 
----
-
-## Real-World Testing
-
-The saved XGBoost model was tested on unseen data and performed consistently.
-
-However, prediction performance for CSAT classes 2 and 3 was lower due to class imbalance. Future improvements can focus on collecting more balanced data to enhance performance.
+Training and testing performance were close, indicating no significant overfitting and good generalization.
 
 ---
 
-## Business Impact
+# Feature Importance Insights
 
-This model enables Flipkart to:
+Using Gain-based importance and SHAP analysis, the most influential features were:
+
+* customer_sentiment_score
+* agent_risk_rate
+* response_time_mins
+* remark_length
+
+Key findings:
+
+* Negative sentiment strongly increases dissatisfaction risk
+* Longer response times push prediction toward At-Risk
+* Agents with high historical dissatisfaction rates increase risk probability
+
+---
+
+# Real-World Testing
+
+The final LightGBM model was saved using joblib and reloaded to simulate deployment. The model was tested on unseen and real-world-like input scenarios, and it produced consistent predictions.
+
+Future improvements can focus on advanced NLP models and improved data quality to further enhance recall and predictive performance.
+
+---
+
+# Business Impact
+
+This solution enables Flipkart to:
 
 * Identify potentially dissatisfied customers before feedback submission
-* Speed up responses for high-risk cases
-* Assign better agents to critical tickets
-* Reduce churn
-* Improve customer retention
-* Increase overall profitability
+* Prioritize high-risk cases
+* Monitor and improve agent performance
+* Reduce customer churn
+* Improve retention
+* Increase long-term profitability
+
+By shifting from reactive feedback analysis to proactive dissatisfaction detection, the company can significantly enhance customer experience.
 
 ---
 
-## Tech Stack
+# Tech Stack
 
 * Python
 * Pandas and NumPy
 * Matplotlib and Seaborn
 * Scikit-Learn
+* LightGBM
 * XGBoost
-* CatBoost
 * SHAP
-* SMOTE
+* VADER Sentiment Analysis
 
 ---
 
-## Conclusion
+# Conclusion
 
-This project demonstrates how Machine Learning can transform customer support from reactive to proactive.
+This project demonstrates how machine learning can transform customer support from reactive to proactive.
 
-By predicting dissatisfaction early, businesses can take preventive actions and significantly improve overall customer experience.
+By predicting dissatisfaction early using behavioral, operational, and sentiment features, the model enables data-driven decision making and proactive customer retention strategies.
+
+The final LightGBM model provides strong recall for dissatisfied customers while maintaining stable overall performance, making it suitable for real-world deployment.
