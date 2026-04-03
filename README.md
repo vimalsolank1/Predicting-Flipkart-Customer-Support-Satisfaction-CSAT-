@@ -1,6 +1,6 @@
 
 
-# Predicting Flipkart Customer Satisfaction (CSAT) Using Machine Learning
+# Predicting Flipkart Customer Support Satisfaction (CSAT) Using machine learning
 
 <img width="1536" height="1024" alt="download" src="https://github.com/user-attachments/assets/e0bc02cd-48c8-4f28-b2e7-a8a0931f52f7" />
 
